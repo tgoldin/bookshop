@@ -16,6 +16,7 @@
 
 	<properties>
 		<java.version>11</java.version>
+		<rest.assured.version>4.3.0</rest.assured.version>
 	</properties>
 
 	<dependencies>
@@ -49,6 +50,28 @@
 					<artifactId>junit-vintage-engine</artifactId>
 				</exclusion>
 			</exclusions>
+		</dependency>
+<!--		<dependency>-->
+<!--			<groupId>io.rest-assured</groupId>-->
+<!--			<artifactId>rest-assured</artifactId>-->
+<!--			<version>${rest.assured.version}</version>-->
+<!--			<scope>test</scope>-->
+<!--		</dependency>-->
+		<dependency>
+			<groupId>io.rest-assured</groupId>
+			<artifactId>json-path</artifactId>
+			<version>${rest.assured.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>io.rest-assured</groupId>
+			<artifactId>xml-path</artifactId>
+			<version>${rest.assured.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>io.rest-assured</groupId>
+			<artifactId>spring-mock-mvc</artifactId>
+			<version>${rest.assured.version}</version>
+			<scope>test</scope>
 		</dependency>
 	</dependencies>
 
