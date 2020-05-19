@@ -6,7 +6,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.util.UUID;
 
@@ -26,7 +25,7 @@ public class BookControllerWebMvcTests {
     public void givenUuid_whenFindingBookByUuid_thenBookWithUuidReturned() throws Exception {
         UUID uuid = UUID.randomUUID();
 
-        mockMvc.perform(get(String.format("/books/%s", uuid))
+        mockMvc.perform(get("/books/{uuid}", uuid)
             .contentType(APPLICATION_JSON))
             .andDo(print())
             .andExpect(status().isOk())
