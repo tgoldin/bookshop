@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.UUID;
 
+import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.HttpStatus.OK;
 
 @RestController
@@ -24,6 +25,7 @@ public class BookController {
 
     @GetMapping("/{uuid}")
     public ResponseEntity<BookDto> findByUuid(@PathVariable("uuid") UUID uuid) {
-        return bookQueryService.findByUuid(uuid).map(book -> new ResponseEntity<>(book, OK)).orElse(null);
+        return bookQueryService.findByUuid(uuid).map(book -> new ResponseEntity<>(book, OK))
+                .orElse(new ResponseEntity<>(null, NOT_FOUND));
     }
 }

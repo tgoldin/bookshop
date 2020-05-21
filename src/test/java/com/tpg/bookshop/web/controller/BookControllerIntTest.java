@@ -1,6 +1,9 @@
 package com.tpg.bookshop.web.controller;
 
 import com.tpg.bookshop.BookshopApplication;
+import com.tpg.bookshop.UUIDBasedTest;
+import com.tpg.bookshop.UUIDBuilder;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -20,19 +23,29 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest(webEnvironment = RANDOM_PORT, classes = BookshopApplication.class)
 @AutoConfigureMockMvc
 @ActiveProfiles(profiles={"int-test"})
-public class BookControllerIntTest {
+public class BookControllerIntTest extends UUIDBasedTest {
     @Autowired
     private MockMvc mockMvc;
 
     @Test
     public void givenUuid_whenFindingBookByUuid_thenBookWithUuidReturned() throws Exception {
 
-        UUID uuid = UUID.randomUUID();
-
         mockMvc.perform(get("/books/{uuid}", uuid)
                 .contentType(APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.uuid").isNotEmpty());
+    }
+
+    @Test
+    public void givenUuidAndNoBookWithMatchingUuid_whenFindingBookByUuid_thenEmptyBodyReturnedAndResponseIsNotFound() throws Exception {
+
+        java.util.UUID notFoundUuid = uuid(NOT_FOUND_UUID);
+
+        mockMvc.perform(get("/books/{uuid}", notFoundUuid)
+                .contentType(APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$").doesNotExist());
     }
 }
