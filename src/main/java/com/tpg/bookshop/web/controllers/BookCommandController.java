@@ -4,11 +4,19 @@ import com.tpg.bookshop.services.BookCommandService;
 import com.tpg.bookshop.services.exceptions.FailedToSaveBookException;
 import com.tpg.bookshop.web.model.BookDto;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
+@RestController
+@RequestMapping("/books")
 public class BookCommandController {
     private static final String BOOKS_COMMAND_URI = "/books";
     private static final String HEADER_LOCATION_KEY = "Location";
@@ -19,7 +27,8 @@ public class BookCommandController {
         this.bookCommandService = bookCommandService;
     }
 
-    public ResponseEntity createBook(BookDto bookDto) {
+    @PostMapping(consumes = APPLICATION_JSON_VALUE)
+    public ResponseEntity createBook(@RequestBody BookDto bookDto) {
         try {
             BookDto savedBook = bookCommandService.createBook(bookDto);
             return new ResponseEntity(String.format("Saved new book %s", savedBook.getUuid()), generateHttpHeaders(savedBook), CREATED);

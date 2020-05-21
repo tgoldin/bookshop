@@ -57,7 +57,7 @@ public class BookCommandControllerTests extends UUIDBasedTest {
     }
 
     @Test
-    public void givenANewBook_whenPostingFails_thenBookIsNotCreatedAndCreatedResponseIsReturned() throws FailedToSaveBookException {
+    public void givenANewBook_whenPostingFails_thenBookIsNotCreatedAndInternalServerErrorResponseIsReturned() throws FailedToSaveBookException {
         BookDto newBook = BookDto.builder()
                 .isbn("1234-ABC")
                 .title("A new book")
