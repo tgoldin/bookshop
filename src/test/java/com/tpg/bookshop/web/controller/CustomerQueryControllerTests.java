@@ -10,8 +10,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.ResponseEntity;
 
-import java.util.UUID;
-
 import static java.util.Optional.empty;
 import static java.util.Optional.of;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -20,12 +18,12 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.HttpStatus.OK;
 
 @ExtendWith(MockitoExtension.class)
-public class CustomerControllerTests extends UUIDBasedTest {
+public class CustomerQueryControllerTests extends UUIDBasedTest {
     @Mock
     private CustomerQueryService customerQueryService;
 
     @InjectMocks
-    private CustomerController controller;
+    private CustomerQueryController controller;
 
     @Test
     public void givenExistingCustomerUuid_whenFindingCustomerByUuid_thenCustomerIsReturned() {

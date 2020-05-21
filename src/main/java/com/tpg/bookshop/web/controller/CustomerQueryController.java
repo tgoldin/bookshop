@@ -15,10 +15,10 @@ import static org.springframework.http.HttpStatus.OK;
 
 @RestController
 @RequestMapping("customers")
-public class CustomerController {
+public class CustomerQueryController {
     private final CustomerQueryService customerQueryService;
 
-    public CustomerController(CustomerQueryService customerQueryService) {
+    public CustomerQueryController(CustomerQueryService customerQueryService) {
         this.customerQueryService = customerQueryService;
     }
 

@@ -15,11 +15,11 @@ import static org.springframework.http.HttpStatus.OK;
 
 @RestController
 @RequestMapping("/books")
-public class BookController {
+public class BookQueryController {
 
     private final BookQueryService bookQueryService;
 
-    public BookController(BookQueryService bookQueryService) {
+    public BookQueryController(BookQueryService bookQueryService) {
         this.bookQueryService = bookQueryService;
     }
 

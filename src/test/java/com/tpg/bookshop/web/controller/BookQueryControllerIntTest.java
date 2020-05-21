@@ -23,7 +23,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest(webEnvironment = RANDOM_PORT, classes = BookshopApplication.class)
 @AutoConfigureMockMvc
 @ActiveProfiles(profiles={"int-test"})
-public class BookControllerIntTest extends UUIDBasedTest {
+public class BookQueryControllerIntTest extends UUIDBasedTest {
     @Autowired
     private MockMvc mockMvc;
 

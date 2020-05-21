@@ -19,12 +19,12 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.HttpStatus.OK;
 
 @ExtendWith(MockitoExtension.class)
-public class BookControllerTests extends UUIDBasedTest {
+public class BookQueryControllerTests extends UUIDBasedTest {
     @Mock
     private BookQueryService bookQueryService;
 
     @InjectMocks
-    private BookController controller;
+    private BookQueryController controller;
 
     @Test
     public void whenFindingExistingBookByUuid_thenExistingBookWithMatchingUuidIsFound() {
