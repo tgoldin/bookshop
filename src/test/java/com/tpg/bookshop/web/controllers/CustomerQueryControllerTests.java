@@ -1,4 +1,4 @@
-package com.tpg.bookshop.web.controller;
+package com.tpg.bookshop.web.controllers;
 
 import com.tpg.bookshop.UUIDBasedTest;
 import com.tpg.bookshop.services.CustomerQueryService;

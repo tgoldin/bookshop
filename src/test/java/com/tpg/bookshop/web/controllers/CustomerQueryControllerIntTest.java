@@ -1,17 +1,13 @@
-package com.tpg.bookshop.web.controller;
+package com.tpg.bookshop.web.controllers;
 
 import com.tpg.bookshop.BookshopApplication;
 import com.tpg.bookshop.UUIDBasedTest;
-import com.tpg.bookshop.UUIDBuilder;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
-
-import java.util.UUID;
 
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
@@ -23,14 +19,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest(webEnvironment = RANDOM_PORT, classes = BookshopApplication.class)
 @AutoConfigureMockMvc
 @ActiveProfiles(profiles={"int-test"})
-public class BookQueryControllerIntTest extends UUIDBasedTest {
+public class CustomerQueryControllerIntTest extends UUIDBasedTest {
     @Autowired
     private MockMvc mockMvc;
 
     @Test
-    public void givenUuid_whenFindingBookByUuid_thenBookWithUuidReturned() throws Exception {
+    public void givenUuid_whenFindingCustomerByUuid_thenCustomerWithUuidReturned() throws Exception {
 
-        mockMvc.perform(get("/books/{uuid}", uuid)
+        mockMvc.perform(get("/customers/{uuid}", uuid)
                 .contentType(APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk())
@@ -38,11 +34,11 @@ public class BookQueryControllerIntTest extends UUIDBasedTest {
     }
 
     @Test
-    public void givenUuidAndNoBookWithMatchingUuid_whenFindingBookByUuid_thenEmptyBodyReturnedAndResponseIsNotFound() throws Exception {
+    public void givenUuidAndNoCustomerWithMatchingUuid_whenFindingCustomerByUuid_thenEmptyBodyReturnedAndResponseIsNotFound() throws Exception {
 
         java.util.UUID notFoundUuid = uuid(NOT_FOUND_UUID);
 
-        mockMvc.perform(get("/books/{uuid}", notFoundUuid)
+        mockMvc.perform(get("/customers/{uuid}", notFoundUuid)
                 .contentType(APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isNotFound())

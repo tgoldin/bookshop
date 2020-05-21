@@ -1,4 +1,4 @@
-package com.tpg.bookshop.web.controller;
+package com.tpg.bookshop.web.controllers;
 
 import com.tpg.bookshop.services.CustomerQueryService;
 import com.tpg.bookshop.web.model.CustomerDto;

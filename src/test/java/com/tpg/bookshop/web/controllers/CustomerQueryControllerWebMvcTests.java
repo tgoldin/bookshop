@@ -1,8 +1,8 @@
-package com.tpg.bookshop.web.controller;
+package com.tpg.bookshop.web.controllers;
 
 import com.tpg.bookshop.UUIDBasedTest;
-import com.tpg.bookshop.services.BookQueryService;
-import com.tpg.bookshop.web.model.BookDto;
+import com.tpg.bookshop.services.CustomerQueryService;
+import com.tpg.bookshop.web.model.CustomerDto;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -21,22 +21,22 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(MockitoExtension.class)
-@WebMvcTest(BookQueryController.class)
-public class BookQueryControllerWebMvcTests extends UUIDBasedTest {
+@WebMvcTest(CustomerQueryController.class)
+public class CustomerQueryControllerWebMvcTests extends UUIDBasedTest {
     @Autowired
     private MockMvc mockMvc;
 
     @MockBean
-    private BookQueryService bookQueryService;
+    private CustomerQueryService customerQueryService;
 
     @Test
-    public void givenUuid_whenFindingBookByUuid_thenBookWithUuidReturned() throws Exception {
+    public void givenUuid_whenFindingCustomerByUuid_thenCustomerWithUuidReturned() throws Exception {
 
-        BookDto bookDto = BookDto.builder().uuid(uuid).build();
+        CustomerDto customerDto = CustomerDto.builder().uuid(uuid).build();
 
-        when(bookQueryService.findByUuid(uuid)).thenReturn(of(bookDto));
+        when(customerQueryService.findByUuid(uuid)).thenReturn(of(customerDto));
 
-        mockMvc.perform(get("/books/{uuid}", uuid)
+        mockMvc.perform(get("/customers/{uuid}", uuid)
             .contentType(APPLICATION_JSON))
             .andDo(print())
             .andExpect(status().isOk())
@@ -44,14 +44,14 @@ public class BookQueryControllerWebMvcTests extends UUIDBasedTest {
     }
 
     @Test
-    public void givenUuidAndNoBookMatchingUuid_whenFindingBookByUuid_thenResponseStatusIsNotFoundAndEmptyBodyReturned() throws Exception {
+    public void givenUuidAndNoCustomerMatchingUuid_whenFindingCustomerByUuid_thenResponseStatusIsNotFoundAndEmptyBodyReturned() throws Exception {
 
-        when(bookQueryService.findByUuid(uuid)).thenReturn(empty());
+        when(customerQueryService.findByUuid(uuid)).thenReturn(empty());
 
         mockMvc.perform(get("/books/{uuid}", uuid)
-            .contentType(APPLICATION_JSON))
-            .andDo(print())
-            .andExpect(status().isNotFound())
-            .andExpect(jsonPath("$").doesNotExist());
+                .contentType(APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$").doesNotExist());
     }
 }
