@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.UUID;
 
+import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.HttpStatus.OK;
 
 @RestController
@@ -23,6 +24,7 @@ public class CustomerController {
 
     @GetMapping("/{uuid}")
     public ResponseEntity<CustomerDto> findByUuid(@PathVariable("uuid") UUID uuid) {
-        return customerQueryService.findByUuid(uuid).map(c -> new ResponseEntity<>(c, OK)).orElse(null);
+        return customerQueryService.findByUuid(uuid).map(c -> new ResponseEntity<>(c, OK))
+                .orElse(new ResponseEntity<>(NOT_FOUND));
     }
 }

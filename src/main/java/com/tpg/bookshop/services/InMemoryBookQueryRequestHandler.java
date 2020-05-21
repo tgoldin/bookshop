@@ -10,8 +10,7 @@ import static java.util.Optional.empty;
 import static java.util.Optional.of;
 
 @Service
-public class InMemoryBookQueryRequestHandler implements BookQueryService {
-    private static final UUID NOT_FOUND_UUID = UUID.fromString("7debcc77-4ddf-41ae-8af6-999bb45014a2");
+public class InMemoryBookQueryRequestHandler extends InMemoryBasedQueryRequestHandler implements BookQueryService {
 
     @Override
     public Optional<BookDto> findByUuid(UUID uuid) {

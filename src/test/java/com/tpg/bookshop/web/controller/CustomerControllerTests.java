@@ -1,5 +1,6 @@
 package com.tpg.bookshop.web.controller;
 
+import com.tpg.bookshop.UUIDBasedTest;
 import com.tpg.bookshop.services.CustomerQueryService;
 import com.tpg.bookshop.web.model.CustomerDto;
 import org.junit.jupiter.api.Test;
@@ -11,13 +12,15 @@ import org.springframework.http.ResponseEntity;
 
 import java.util.UUID;
 
+import static java.util.Optional.empty;
 import static java.util.Optional.of;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.HttpStatus.OK;
 
 @ExtendWith(MockitoExtension.class)
-public class CustomerControllerTests {
+public class CustomerControllerTests extends UUIDBasedTest {
     @Mock
     private CustomerQueryService customerQueryService;
 
@@ -26,7 +29,6 @@ public class CustomerControllerTests {
 
     @Test
     public void givenExistingCustomerUuid_whenFindingCustomerByUuid_thenCustomerIsReturned() {
-        UUID uuid = UUID.randomUUID();
 
         CustomerDto customerDto = CustomerDto.builder().uuid(uuid).build();
 
@@ -36,5 +38,15 @@ public class CustomerControllerTests {
 
         assertThat(actual.getStatusCode()).isEqualTo(OK);
         assertThat(actual.getBody().getUuid()).isEqualTo(uuid);
+    }
+
+    @Test
+    public void whenNoCustomerExistsWithUuid_thenResponseIsEmptyAndNotFound() {
+        when(customerQueryService.findByUuid(uuid)).thenReturn(empty());
+
+        ResponseEntity<CustomerDto> actual = controller.findByUuid(uuid);
+
+        assertThat(actual.getStatusCode()).isEqualTo(NOT_FOUND);
+        assertThat(actual.getBody()).isEqualTo(null);
     }
 }
