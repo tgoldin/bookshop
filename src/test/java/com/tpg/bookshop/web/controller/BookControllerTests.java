@@ -2,7 +2,6 @@ package com.tpg.bookshop.web.controller;
 
 import com.tpg.bookshop.services.BookQueryService;
 import com.tpg.bookshop.web.model.BookDto;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -14,7 +13,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.HttpStatus.OK;
 
@@ -38,7 +36,5 @@ public class BookControllerTests {
 
         assertThat(actual.getStatusCode()).isEqualTo(OK);
         assertThat(actual.getBody().getUuid()).isEqualTo(uuid);
-
-        verify(bookQueryService).findByUuid(uuid);
     }
 }

@@ -7,7 +7,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Service
-public class InMemoryBookQueryHandler implements BookQueryService {
+public class InMemoryBookQueryRequestHandler implements BookQueryService {
     @Override
     public Optional<BookDto> findByUuid(UUID uuid) {
         return Optional.of(BookDto.builder().uuid(uuid).build());
