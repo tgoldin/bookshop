@@ -6,11 +6,12 @@ import org.springframework.stereotype.Service;
 import java.util.Optional;
 import java.util.UUID;
 
+import static com.tpg.bookshop.services.BookUuids.NOT_FOUND_UUID;
 import static java.util.Optional.empty;
 import static java.util.Optional.of;
 
 @Service
-public class InMemoryBookQueryRequestHandler extends InMemoryBasedQueryRequestHandler implements BookQueryService {
+public class InMemoryBookQueryRequestHandler implements BookQueryService {
 
     @Override
     public Optional<BookDto> findByUuid(UUID uuid) {

@@ -6,6 +6,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.context.ActiveProfiles;
 
+import static com.tpg.bookshop.services.BookUuids.NOT_FOUND_UUID;
 import static io.restassured.RestAssured.given;
 import static org.apache.http.HttpStatus.SC_NOT_FOUND;
 import static org.apache.http.HttpStatus.SC_OK;
@@ -41,7 +42,7 @@ public class CustomerQueriesRATests extends UUIDBasedTest {
 
     @Test
     public void givenUuidAndNoCustomerWithMatchingUuid_whenFindByUuid_thenExpectNotFoundResponse() {
-        java.util.UUID notFoundUuid = uuid(NOT_FOUND_UUID);
+        java.util.UUID notFoundUuid = NOT_FOUND_UUID;
 
         given()
                 .contentType(APPLICATION_JSON_VALUE)

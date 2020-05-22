@@ -1,9 +1,11 @@
 package com.tpg.bookshop.web.controllers;
 
 import com.tpg.bookshop.services.BookCommandService;
+import com.tpg.bookshop.services.exceptions.BookAlreadyExistsException;
 import com.tpg.bookshop.services.exceptions.FailedToSaveBookException;
 import com.tpg.bookshop.web.model.BookDto;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -33,7 +35,7 @@ public class BookCommandController {
             BookDto savedBook = bookCommandService.createBook(bookDto);
             return new ResponseEntity(String.format("Saved new book %s", savedBook.getUuid()), generateHttpHeaders(savedBook), CREATED);
         }
-        catch (FailedToSaveBookException fsbe) {
+        catch (FailedToSaveBookException | BookAlreadyExistsException fsbe) {
             return new ResponseEntity(fsbe.getMessage(), generateHttpHeaders(null), INTERNAL_SERVER_ERROR);
         }
     }

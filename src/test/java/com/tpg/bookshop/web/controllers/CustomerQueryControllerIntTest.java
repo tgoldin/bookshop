@@ -9,6 +9,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static com.tpg.bookshop.services.BookUuids.NOT_FOUND_UUID;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -36,7 +37,7 @@ public class CustomerQueryControllerIntTest extends UUIDBasedTest {
     @Test
     public void givenUuidAndNoCustomerWithMatchingUuid_whenFindingCustomerByUuid_thenEmptyBodyReturnedAndResponseIsNotFound() throws Exception {
 
-        java.util.UUID notFoundUuid = uuid(NOT_FOUND_UUID);
+        java.util.UUID notFoundUuid = NOT_FOUND_UUID;
 
         mockMvc.perform(get("/customers/{uuid}", notFoundUuid)
                 .contentType(APPLICATION_JSON))

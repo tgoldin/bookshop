@@ -1,37 +1,34 @@
 package com.tpg.bookshop.web.controllers;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.tpg.bookshop.BookshopApplication;
 import com.tpg.bookshop.UUIDBasedTest;
-import com.tpg.bookshop.services.BookCommandService;
-import com.tpg.bookshop.services.exceptions.BookAlreadyExistsException;
-import com.tpg.bookshop.services.exceptions.FailedToSaveBookException;
 import com.tpg.bookshop.web.model.BookDto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.UUID;
+
+import static com.tpg.bookshop.services.BookUuids.NOT_FOUND_UUID;
 import static org.hamcrest.Matchers.containsString;
-import static org.mockito.Mockito.when;
+import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@ExtendWith(MockitoExtension.class)
-@WebMvcTest(BookCommandController.class)
-public class BookCommandControllerWebMvcTests extends UUIDBasedTest {
+@SpringBootTest(webEnvironment = RANDOM_PORT, classes = BookshopApplication.class)
+@AutoConfigureMockMvc
+@ActiveProfiles(profiles={"int-test"})
+public class BookCommandControllerIntTest extends UUIDBasedTest {
     @Autowired
     private MockMvc mockMvc;
-
-    @MockBean
-    private BookCommandService bookCommandService;
 
     private ObjectMapper objectMapper;
 
@@ -53,16 +50,6 @@ public class BookCommandControllerWebMvcTests extends UUIDBasedTest {
     @Test
     public void givenANewBook_whenPosted_thenBookIsCreatedAndCreatedResponseIsReturned() throws Exception {
 
-        BookDto savedBook = BookDto.builder()
-                .uuid(uuid)
-                .isbn("1234-ABC")
-                .title("A new book")
-                .description("A nice new book")
-                .build();
-
-        when(bookCommandService.createBook(newBook)).thenReturn(savedBook);
-
-        ObjectMapper objectMapper = new ObjectMapper();
         String json = objectMapper.writeValueAsString(newBook);
 
         mockMvc.perform(post("/books")
@@ -71,13 +58,12 @@ public class BookCommandControllerWebMvcTests extends UUIDBasedTest {
                 .accept(APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isCreated())
-                .andExpect(content().string(String.format("Saved new book %s", uuid)));
+                .andExpect(content().string(containsString("Saved new book")));
     }
 
     @Test
     public void givenANewBook_whenPostingFails_thenBookIsNotCreatedAndInternalServerErrorResponseIsReturned() throws Exception {
-
-        when(bookCommandService.createBook(newBook)).thenThrow(new FailedToSaveBookException("Failed to save new book"));
+        newBook.setUuid(NOT_FOUND_UUID);
 
         String json = objectMapper.writeValueAsString(newBook);
 
@@ -87,15 +73,13 @@ public class BookCommandControllerWebMvcTests extends UUIDBasedTest {
                 .accept(APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isInternalServerError())
-                .andExpect(content().string("Failed to save new book"));
+                .andExpect(content().string(containsString("Failed to save new book")));
     }
 
     @Test
     public void givenAnExistingBook_whenPosted_thenBookIsNotCreatedAndInternalServerErrorResponseIsReturned() throws Exception {
 
         BookDto existingBook = BookDto.builder().uuid(uuid).build();
-
-        when(bookCommandService.createBook(existingBook)).thenThrow(new BookAlreadyExistsException(existingBook.getUuid()));
 
         String json = objectMapper.writeValueAsString(existingBook);
 
