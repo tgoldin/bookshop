@@ -8,12 +8,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static com.tpg.bookshop.services.BookUuids.NOT_FOUND_UUID;
-import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.*;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 public class BookCommandControllerIntTest extends WebIntTest {
     private BookDto newBook;
@@ -39,6 +38,7 @@ public class BookCommandControllerIntTest extends WebIntTest {
                 .content(json)
                 .accept(APPLICATION_JSON))
                 .andDo(print())
+                .andExpect(header().string("Location", is(notNullValue())))
                 .andExpect(status().isCreated())
                 .andExpect(content().string(containsString("Saved new book")));
     }
@@ -55,6 +55,7 @@ public class BookCommandControllerIntTest extends WebIntTest {
                 .accept(APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isInternalServerError())
+                .andExpect(header().string("Location", is(nullValue())))
                 .andExpect(content().string(containsString("Failed to save new book")));
     }
 
@@ -71,6 +72,7 @@ public class BookCommandControllerIntTest extends WebIntTest {
                 .accept(APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isInternalServerError())
+                .andExpect(header().string("Location", is(nullValue())))
                 .andExpect(content().string(containsString(String.format("Book with UUID %s already exists", uuid))));
     }
 }

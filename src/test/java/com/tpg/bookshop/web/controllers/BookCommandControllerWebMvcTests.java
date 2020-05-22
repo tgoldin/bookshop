@@ -12,13 +12,13 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static org.hamcrest.Matchers.containsString;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.*;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(BookCommandController.class)
 public class BookCommandControllerWebMvcTests extends WebMvcBasedTest {
@@ -58,6 +58,7 @@ public class BookCommandControllerWebMvcTests extends WebMvcBasedTest {
                 .accept(APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isCreated())
+                .andExpect(header().string("Location", is(equalTo(String.format("/books/%s", uuid)))))
                 .andExpect(content().string(String.format("Saved new book %s", uuid)));
     }
 

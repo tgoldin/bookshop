@@ -1,6 +1,5 @@
 Introduce more event-based specific DTOs
 Add Location assertions to tests
-Add logging
 Add abstract base classes for tests where necessary
 Add Spring security
 Add vault
