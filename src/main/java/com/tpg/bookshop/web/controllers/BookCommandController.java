@@ -2,17 +2,14 @@ package com.tpg.bookshop.web.controllers;
 
 import com.tpg.bookshop.services.BookCommandService;
 import com.tpg.bookshop.services.exceptions.BookAlreadyExistsException;
+import com.tpg.bookshop.services.exceptions.CannotUpdateNewBookException;
 import com.tpg.bookshop.services.exceptions.FailedToSaveBookException;
 import com.tpg.bookshop.web.model.BookDto;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import static org.springframework.http.HttpStatus.CREATED;
-import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
+import static org.springframework.http.HttpStatus.*;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @RestController
@@ -35,6 +32,17 @@ public class BookCommandController implements HttpHeadersBuilder {
         }
         catch (FailedToSaveBookException | BookAlreadyExistsException fsbe) {
             return new ResponseEntity(fsbe.getMessage(), generateHttpHeaders(BOOKS_COMMAND_URI, null), INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PutMapping(consumes = APPLICATION_JSON_VALUE)
+    public ResponseEntity updateBook(@RequestBody BookDto bookDto) {
+        try {
+            BookDto updatedBook = bookCommandService.updateBook(bookDto);
+            return new ResponseEntity(String.format("Updated book with UUID %s.", updatedBook.getUuid()), generateHttpHeaders(BOOKS_COMMAND_URI, updatedBook.getUuid()), OK);
+        }
+        catch (CannotUpdateNewBookException be) {
+            return new ResponseEntity(be.getMessage(), generateHttpHeaders(BOOKS_COMMAND_URI, null), BAD_REQUEST);
         }
     }
 }
