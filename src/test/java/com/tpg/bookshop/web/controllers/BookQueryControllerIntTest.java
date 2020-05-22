@@ -1,9 +1,6 @@
 package com.tpg.bookshop.web.controllers;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.web.servlet.MockMvc;
 
 import static com.tpg.bookshop.services.BookUuids.NOT_FOUND_UUID;
 import static org.springframework.http.MediaType.APPLICATION_JSON;

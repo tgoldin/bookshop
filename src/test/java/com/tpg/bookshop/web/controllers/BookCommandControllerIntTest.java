@@ -1,11 +1,8 @@
 package com.tpg.bookshop.web.controllers;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tpg.bookshop.web.model.BookDto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.web.servlet.MockMvc;
 
 import static com.tpg.bookshop.services.BookUuids.NOT_FOUND_UUID;
 import static org.hamcrest.Matchers.*;
