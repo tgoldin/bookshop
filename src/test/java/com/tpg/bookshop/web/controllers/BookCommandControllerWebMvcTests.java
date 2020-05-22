@@ -62,7 +62,6 @@ public class BookCommandControllerWebMvcTests extends UUIDBasedTest {
 
         when(bookCommandService.createBook(newBook)).thenReturn(savedBook);
 
-        ObjectMapper objectMapper = new ObjectMapper();
         String json = objectMapper.writeValueAsString(newBook);
 
         mockMvc.perform(post("/books")
