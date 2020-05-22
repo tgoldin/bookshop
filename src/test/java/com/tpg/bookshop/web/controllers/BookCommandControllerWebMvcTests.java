@@ -1,16 +1,12 @@
 package com.tpg.bookshop.web.controllers;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.tpg.bookshop.UUIDBasedTest;
 import com.tpg.bookshop.services.BookCommandService;
 import com.tpg.bookshop.services.exceptions.BookAlreadyExistsException;
 import com.tpg.bookshop.services.exceptions.FailedToSaveBookException;
 import com.tpg.bookshop.web.model.BookDto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -24,24 +20,16 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@ExtendWith(MockitoExtension.class)
 @WebMvcTest(BookCommandController.class)
-public class BookCommandControllerWebMvcTests extends UUIDBasedTest {
-    @Autowired
-    private MockMvc mockMvc;
-
+public class BookCommandControllerWebMvcTests extends WebMvcBasedTest {
     @MockBean
     private BookCommandService bookCommandService;
-
-    private ObjectMapper objectMapper;
 
     private BookDto newBook;
 
     @BeforeEach
     public void setUp() {
         super.setUp();
-
-        objectMapper = new ObjectMapper();
 
         newBook = BookDto.builder()
                 .isbn("1234-ABC")

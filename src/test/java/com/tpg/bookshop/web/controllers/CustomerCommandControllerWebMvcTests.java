@@ -1,33 +1,24 @@
 package com.tpg.bookshop.web.controllers;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.tpg.bookshop.services.CustomerCommandService;
 import com.tpg.bookshop.services.exceptions.CustomerAlreadyExistsException;
 import com.tpg.bookshop.services.exceptions.FailedToSaveCustomerException;
 import com.tpg.bookshop.web.model.CustomerDto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.web.servlet.MockMvc;
 
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.head;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@ExtendWith(MockitoExtension.class)
 @WebMvcTest(CustomerCommandController.class)
 public class CustomerCommandControllerWebMvcTests extends WebMvcBasedTest {
-    @Autowired
-    private MockMvc mockMvc;
-
     @MockBean
     private CustomerCommandService customerCommandService;
 

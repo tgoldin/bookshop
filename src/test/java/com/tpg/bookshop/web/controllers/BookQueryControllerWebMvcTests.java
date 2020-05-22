@@ -1,15 +1,10 @@
 package com.tpg.bookshop.web.controllers;
 
-import com.tpg.bookshop.UUIDBasedTest;
 import com.tpg.bookshop.services.BookQueryService;
 import com.tpg.bookshop.web.model.BookDto;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.web.servlet.MockMvc;
 
 import static java.util.Optional.empty;
 import static java.util.Optional.of;
@@ -20,12 +15,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@ExtendWith(MockitoExtension.class)
 @WebMvcTest(BookQueryController.class)
-public class BookQueryControllerWebMvcTests extends UUIDBasedTest {
-    @Autowired
-    private MockMvc mockMvc;
-
+public class BookQueryControllerWebMvcTests extends WebMvcBasedTest {
     @MockBean
     private BookQueryService bookQueryService;
 
