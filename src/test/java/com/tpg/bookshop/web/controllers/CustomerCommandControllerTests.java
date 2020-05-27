@@ -8,6 +8,7 @@ import com.tpg.bookshop.services.exceptions.FailedToSaveCustomerException;
 import com.tpg.bookshop.services.exceptions.FailedToUpdateCustomerException;
 import com.tpg.bookshop.web.model.CustomerDto;
 import com.tpg.bookshop.web.model.NewCustomerRequest;
+import com.tpg.bookshop.web.model.UpdateCustomerRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,6 +25,8 @@ import static org.springframework.http.HttpStatus.*;
 public class CustomerCommandControllerTests extends UUIDBasedTest {
     private NewCustomerRequest newCustomerRequest;
 
+    private UpdateCustomerRequest updateCustomerRequest;
+
     @Mock
     private CustomerCommandService customerCommandService;
 
@@ -35,6 +38,10 @@ public class CustomerCommandControllerTests extends UUIDBasedTest {
         super.setUp();
 
         newCustomerRequest = NewCustomerRequest.builder().firstName("John").surname("Doe").build();
+
+        updateCustomerRequest = UpdateCustomerRequest.builder()
+                .uuid(uuid)
+                .firstName("John").surname("Doe").build();
     }
 
     @Test
@@ -73,9 +80,9 @@ public class CustomerCommandControllerTests extends UUIDBasedTest {
     public void givenAnExistingCustomer_whenPuttingUpdatedCustomer_thenCustomerIsUpdatedAndOkResponseIsReturned() throws Exception {
         CustomerDto existingCustomer = CustomerDto.builder().uuid(uuid).firstName("John").surname("Doe").build();
 
-        when(customerCommandService.updateCustomer(existingCustomer)).thenReturn(existingCustomer);
+        when(customerCommandService.updateCustomer(updateCustomerRequest)).thenReturn(existingCustomer);
 
-        ResponseEntity actual = controller.updateCustomer(existingCustomer);
+        ResponseEntity actual = controller.updateCustomer(updateCustomerRequest);
 
         assertThat(actual.getStatusCode()).isEqualTo(OK);
         assertThat(actual.getHeaders().get("Location")).contains(String.format("/customers/%s", uuid));
@@ -84,11 +91,9 @@ public class CustomerCommandControllerTests extends UUIDBasedTest {
 
     @Test
     public void givenAnExistingCustomer_whenPuttingUpdatedCustomerFails_thenCustomerIsNotUpdatedAndInternalServerErrorResponseIsReturned() throws Exception {
-        CustomerDto existingCustomer = CustomerDto.builder().uuid(uuid).firstName("John").surname("Doe").build();
+        when(customerCommandService.updateCustomer(updateCustomerRequest)).thenThrow(new FailedToUpdateCustomerException(uuid));
 
-        when(customerCommandService.updateCustomer(existingCustomer)).thenThrow(new FailedToUpdateCustomerException(existingCustomer));
-
-        ResponseEntity actual = controller.updateCustomer(existingCustomer);
+        ResponseEntity actual = controller.updateCustomer(updateCustomerRequest);
 
         assertThat(actual.getStatusCode()).isEqualTo(INTERNAL_SERVER_ERROR);
         assertThat(actual.getHeaders()).isEmpty();
@@ -97,11 +102,11 @@ public class CustomerCommandControllerTests extends UUIDBasedTest {
 
     @Test
     public void givenANewCustomer_whenPuttingNewCustomer_thenCustomerIsNotCreatedAndBadRequestResponseIsReturned() throws Exception {
-        CustomerDto newCustomer = CustomerDto.builder().firstName("John").surname("Doe").build();
+        updateCustomerRequest.setUuid(null);
 
-        when(customerCommandService.updateCustomer(newCustomer)).thenThrow(new CannotUpdateNewCustomerException());
+        when(customerCommandService.updateCustomer(updateCustomerRequest)).thenThrow(new CannotUpdateNewCustomerException());
 
-        ResponseEntity actual = controller.updateCustomer(newCustomer);
+        ResponseEntity actual = controller.updateCustomer(updateCustomerRequest);
 
         assertThat(actual.getStatusCode()).isEqualTo(BAD_REQUEST);
         assertThat(actual.getHeaders()).isEmpty();

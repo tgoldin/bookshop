@@ -2,6 +2,7 @@ package com.tpg.bookshop.web.controllers;
 
 import com.tpg.bookshop.web.model.CustomerDto;
 import com.tpg.bookshop.web.model.NewCustomerRequest;
+import com.tpg.bookshop.web.model.UpdateCustomerRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -17,11 +18,15 @@ public class CustomerCommandControllerIntTest extends WebIntTest {
 
     private NewCustomerRequest newCustomerRequest;
 
+    private UpdateCustomerRequest updateCustomerRequest;
+
     @BeforeEach
     public void setUp() {
         super.setUp();
 
         newCustomerRequest = NewCustomerRequest.builder().firstName("john").surname("Doe").build();
+
+        updateCustomerRequest = UpdateCustomerRequest.builder().uuid(uuid).firstName("John").surname("Doe").build();
     }
 
     @Test
@@ -72,9 +77,7 @@ public class CustomerCommandControllerIntTest extends WebIntTest {
 
     @Test
     public void givenAnExistingCustomer_whenPuttingCustomer_thenCustomerIsUpdatedAndOkResponseIsReturned() throws Exception {
-        CustomerDto existingCustomer = CustomerDto.builder().uuid(uuid).firstName("John").surname("Doe").build();
-
-        String json = objectMapper.writeValueAsString(existingCustomer);
+        String json = objectMapper.writeValueAsString(updateCustomerRequest);
 
         mockMvc.perform(put("/customers")
                 .contentType(APPLICATION_JSON)
@@ -88,9 +91,9 @@ public class CustomerCommandControllerIntTest extends WebIntTest {
 
     @Test
     public void givenAnExistingCustomer_whenPuttingUpdatedCustomerFails_thenCustomerIsNotUpdatedAndInternalServerErrorResponseIsReturned() throws Exception {
-        CustomerDto existingCustomer = CustomerDto.builder().uuid(uuid).firstName("John").surname(uuid.toString()).build();
+        updateCustomerRequest.setSurname(uuid.toString());
 
-        String json = objectMapper.writeValueAsString(existingCustomer);
+        String json = objectMapper.writeValueAsString(updateCustomerRequest);
 
         mockMvc.perform(put("/customers")
                 .contentType(APPLICATION_JSON)

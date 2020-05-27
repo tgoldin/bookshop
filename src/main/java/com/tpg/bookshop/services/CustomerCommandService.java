@@ -6,9 +6,10 @@ import com.tpg.bookshop.services.exceptions.FailedToSaveCustomerException;
 import com.tpg.bookshop.services.exceptions.FailedToUpdateCustomerException;
 import com.tpg.bookshop.web.model.CustomerDto;
 import com.tpg.bookshop.web.model.NewCustomerRequest;
+import com.tpg.bookshop.web.model.UpdateCustomerRequest;
 
 public interface CustomerCommandService {
     CustomerDto createCustomer(NewCustomerRequest request) throws FailedToSaveCustomerException, CustomerAlreadyExistsException;
 
-    CustomerDto updateCustomer(CustomerDto customerDto) throws CannotUpdateNewCustomerException, FailedToUpdateCustomerException;
+    CustomerDto updateCustomer(UpdateCustomerRequest request) throws CannotUpdateNewCustomerException, FailedToUpdateCustomerException;
 }

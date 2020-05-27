@@ -1,9 +1,9 @@
 package com.tpg.bookshop.services.exceptions;
 
-import com.tpg.bookshop.web.model.CustomerDto;
+import java.util.UUID;
 
 public class FailedToUpdateCustomerException extends Exception {
-    public FailedToUpdateCustomerException(CustomerDto customerDto) {
-        super(String.format("Failed to update customer with UUID %s.", customerDto.getUuid()));
+    public FailedToUpdateCustomerException(UUID uuid) {
+        super(String.format("Failed to update customer with UUID %s.", uuid));
     }
 }

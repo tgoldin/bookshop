@@ -7,6 +7,7 @@ import com.tpg.bookshop.services.exceptions.FailedToSaveCustomerException;
 import com.tpg.bookshop.services.exceptions.FailedToUpdateCustomerException;
 import com.tpg.bookshop.web.model.CustomerDto;
 import com.tpg.bookshop.web.model.NewCustomerRequest;
+import com.tpg.bookshop.web.model.UpdateCustomerRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -37,9 +38,9 @@ public class CustomerCommandController implements HttpHeadersBuilder {
     }
 
     @PutMapping(consumes = APPLICATION_JSON_VALUE)
-    public ResponseEntity updateCustomer(@RequestBody CustomerDto customerDto) {
+    public ResponseEntity updateCustomer(@RequestBody UpdateCustomerRequest request) {
         try {
-            CustomerDto updatedCustomer = customerCommandService.updateCustomer(customerDto);
+            CustomerDto updatedCustomer = customerCommandService.updateCustomer(request);
 
             return new ResponseEntity(String.format("Updated customer with UUID %s.", updatedCustomer.getUuid()),
                     generateHttpHeaders(CUSTOMERS_COMMAND_URI, updatedCustomer.getUuid()), OK);

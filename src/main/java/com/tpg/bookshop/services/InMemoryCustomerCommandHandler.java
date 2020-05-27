@@ -6,6 +6,7 @@ import com.tpg.bookshop.services.exceptions.FailedToSaveCustomerException;
 import com.tpg.bookshop.services.exceptions.FailedToUpdateCustomerException;
 import com.tpg.bookshop.web.model.CustomerDto;
 import com.tpg.bookshop.web.model.NewCustomerRequest;
+import com.tpg.bookshop.web.model.UpdateCustomerRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -55,18 +56,28 @@ public class InMemoryCustomerCommandHandler implements CustomerCommandService {
     }
 
     @Override
-    public CustomerDto updateCustomer(CustomerDto customerDto) throws CannotUpdateNewCustomerException, FailedToUpdateCustomerException {
-        if (customerDto.getUuid() == null) { throw new CannotUpdateNewCustomerException(); }
+    public CustomerDto updateCustomer(UpdateCustomerRequest request) throws CannotUpdateNewCustomerException, FailedToUpdateCustomerException {
+        if (request.getUuid() == null) { throw new CannotUpdateNewCustomerException(); }
 
-        if ((customerDto.getUuid() != null) && (customerDto.getUuid().toString().equals(customerDto.getSurname()))){
-            LOGGER.error("Simulating failure to update customer {}", customerDto.getUuid());
-            throw new FailedToUpdateCustomerException(customerDto);
-        }
+        simulateFailureToUpdateCustomer(request);
 
-        customersByUuid.put(customerDto.getUuid(), customerDto);
+        CustomerDto customerDto = CustomerDto.builder()
+                .uuid(request.getUuid())
+                .firstName(request.getFirstName())
+                .surname(request.getSurname())
+                .build();
 
-        LOGGER.info("Customer with UUID {} updated.", customerDto.getUuid());
+        customersByUuid.put(request.getUuid(), customerDto);
+
+        LOGGER.info("Customer with UUID {} updated.", request.getUuid());
 
         return customerDto;
+    }
+
+    private void simulateFailureToUpdateCustomer(UpdateCustomerRequest request) throws FailedToUpdateCustomerException {
+        if ((request.getUuid() != null) && (request.getUuid().toString().equals(request.getSurname()))){
+            LOGGER.error("Simulating failure to update customer {}", request.getUuid());
+            throw new FailedToUpdateCustomerException(request.getUuid());
+        }
     }
 }

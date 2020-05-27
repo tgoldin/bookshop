@@ -7,6 +7,7 @@ import com.tpg.bookshop.services.exceptions.FailedToSaveCustomerException;
 import com.tpg.bookshop.services.exceptions.FailedToUpdateCustomerException;
 import com.tpg.bookshop.web.model.CustomerDto;
 import com.tpg.bookshop.web.model.NewCustomerRequest;
+import com.tpg.bookshop.web.model.UpdateCustomerRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -27,11 +28,16 @@ public class CustomerCommandControllerWebMvcTests extends WebMvcBasedTest {
 
     private NewCustomerRequest newCustomerRequest;
 
+    private UpdateCustomerRequest updateCustomerRequest;
+
     @BeforeEach
     public void setUp() {
         super.setUp();
 
         newCustomerRequest = NewCustomerRequest.builder().firstName("john").surname("Doe").build();
+
+        updateCustomerRequest = UpdateCustomerRequest.builder().uuid(uuid).firstName("John")
+                .surname("doe").build();
     }
 
     @Test
@@ -88,9 +94,9 @@ public class CustomerCommandControllerWebMvcTests extends WebMvcBasedTest {
     public void givenAnExistingCustomer_whenPuttingUpdatedCustomer_thenCustomerIsUpdatedAndOkResponseIsReturned() throws Exception {
         CustomerDto existingCustomer = CustomerDto.builder().uuid(uuid).firstName("John").surname("Doe").build();
 
-        when(customerCommandService.updateCustomer(existingCustomer)).thenReturn(existingCustomer);
+        when(customerCommandService.updateCustomer(updateCustomerRequest)).thenReturn(existingCustomer);
 
-        String json = objectMapper.writeValueAsString(existingCustomer);
+        String json = objectMapper.writeValueAsString(updateCustomerRequest);
 
         mockMvc.perform(put("/customers")
                 .contentType(APPLICATION_JSON)
@@ -104,11 +110,11 @@ public class CustomerCommandControllerWebMvcTests extends WebMvcBasedTest {
 
     @Test
     public void givenAnExistingCustomer_whenPuttingUpdatedCustomerFails_thenCustomerIsNotUpdatedAndInternalServerErrorResponseIsReturned() throws Exception {
-        CustomerDto existingCustomer = CustomerDto.builder().uuid(uuid).firstName("John").surname("Doe").build();
+        updateCustomerRequest.setSurname(uuid.toString());
 
-        when(customerCommandService.updateCustomer(existingCustomer)).thenThrow(new FailedToUpdateCustomerException(existingCustomer));
+        when(customerCommandService.updateCustomer(updateCustomerRequest)).thenThrow(new FailedToUpdateCustomerException(uuid));
 
-        String json = objectMapper.writeValueAsString(existingCustomer);
+        String json = objectMapper.writeValueAsString(updateCustomerRequest);
 
         mockMvc.perform(put("/customers")
                 .contentType(APPLICATION_JSON)
@@ -122,11 +128,9 @@ public class CustomerCommandControllerWebMvcTests extends WebMvcBasedTest {
 
     @Test
     public void givenANewCustomer_whenPuttingNewCustomer_thenCustomerIsNotCreatedAndBadRequestResponseIsReturned() throws Exception {
-        CustomerDto newCustomer = CustomerDto.builder().firstName("John").surname("Doe").build();
-
-        when(customerCommandService.updateCustomer(newCustomer)).thenThrow(new CannotUpdateNewCustomerException());
+        when(customerCommandService.updateCustomer(updateCustomerRequest)).thenThrow(new CannotUpdateNewCustomerException());
         
-        String json = objectMapper.writeValueAsString(newCustomer);
+        String json = objectMapper.writeValueAsString(updateCustomerRequest);
 
         mockMvc.perform(put("/customers")
                 .contentType(APPLICATION_JSON)
