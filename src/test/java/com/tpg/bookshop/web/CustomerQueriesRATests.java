@@ -1,8 +1,5 @@
 package com.tpg.bookshop.web;
 
-import com.tpg.bookshop.UUIDBasedTest;
-import io.restassured.RestAssured;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.context.ActiveProfiles;
 
@@ -15,17 +12,9 @@ import static org.hamcrest.Matchers.lessThan;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @ActiveProfiles({"qa"})
-public class CustomerQueriesRATests extends UUIDBasedTest {
+public class CustomerQueriesRATests extends WebRATests {
 
     public static final String CUSTOMERS_BY_UUID_URI = "/customers/{uuid}";
-
-    @BeforeEach
-    public void setUp() {
-        super.setUp();
-
-        RestAssured.baseURI = "http://localhost";
-        RestAssured.port = 8080;
-    }
 
     @Test
     public void givenUuidOfExistingCustomer_whenFindByUuid_thenExpectValidResponse() {

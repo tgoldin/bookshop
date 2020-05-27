@@ -29,7 +29,7 @@ public class BookCommandControllerIntTest extends WebIntTest {
     }
 
     @Test
-    public void givenANewBook_whenPosted_thenBookIsCreatedAndCreatedResponseIsReturned() throws Exception {
+    public void givenANewBook_whenPostingNewBook_thenBookIsCreatedAndCreatedResponseIsReturned() throws Exception {
 
         String json = objectMapper.writeValueAsString(newBook);
 
@@ -44,7 +44,7 @@ public class BookCommandControllerIntTest extends WebIntTest {
     }
 
     @Test
-    public void givenANewBook_whenPostingFails_thenBookIsNotCreatedAndInternalServerErrorResponseIsReturned() throws Exception {
+    public void givenANewBook_whenPostingNewBookFails_thenBookIsNotCreatedAndInternalServerErrorResponseIsReturned() throws Exception {
         newBook.setUuid(NOT_FOUND_UUID);
 
         String json = objectMapper.writeValueAsString(newBook);
@@ -60,7 +60,7 @@ public class BookCommandControllerIntTest extends WebIntTest {
     }
 
     @Test
-    public void givenAnExistingBook_whenPosted_thenBookIsNotCreatedAndInternalServerErrorResponseIsReturned() throws Exception {
+    public void givenAnExistingBook_whenPostingExistingBook_thenBookIsNotCreatedAndInternalServerErrorResponseIsReturned() throws Exception {
 
         BookDto existingBook = BookDto.builder().uuid(uuid).build();
 
@@ -71,7 +71,7 @@ public class BookCommandControllerIntTest extends WebIntTest {
                 .content(json)
                 .accept(APPLICATION_JSON))
                 .andDo(print())
-                .andExpect(status().isInternalServerError())
+                .andExpect(status().isBadRequest())
                 .andExpect(header().string("Location", is(nullValue())))
                 .andExpect(content().string(containsString(String.format("Book with UUID %s already exists", uuid))));
     }
@@ -90,6 +90,23 @@ public class BookCommandControllerIntTest extends WebIntTest {
                 .andExpect(status().isOk())
                 .andExpect(header().string("Location", String.format("/books/%s", uuid)))
                 .andExpect(content().string(containsString(String.format("Updated book with UUID %s.", uuid))));
+    }
+
+    @Test
+    public void givenAnExistingBook_whenPuttingUpdatedBookFails_thenBookIsNotUpdatedAndInternalErrorResponseIsReturned() throws Exception {
+        BookDto existingBook = BookDto.builder().uuid(NOT_FOUND_UUID).title("Title One").description(NOT_FOUND_UUID.toString())
+                .build();
+
+        String json = objectMapper.writeValueAsString(existingBook);
+
+        mockMvc.perform(put("/books")
+                .contentType(APPLICATION_JSON)
+                .content(json)
+                .accept(APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isInternalServerError())
+                .andExpect(header().string("Location", is(nullValue())))
+                .andExpect(content().string(containsString(String.format("Failed to update book with UUID %s.", NOT_FOUND_UUID))));
     }
 
     @Test

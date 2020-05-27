@@ -4,3 +4,5 @@ Add Spring security
 Add vault
 Add web request validation
 Add general validation
+## Add SonarCube
+Add Nexus IQ

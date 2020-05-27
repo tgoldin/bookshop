@@ -1,9 +1,7 @@
 package com.tpg.bookshop.web.controllers;
 
 import com.tpg.bookshop.services.BookCommandService;
-import com.tpg.bookshop.services.exceptions.BookAlreadyExistsException;
-import com.tpg.bookshop.services.exceptions.CannotUpdateNewBookException;
-import com.tpg.bookshop.services.exceptions.FailedToSaveBookException;
+import com.tpg.bookshop.services.exceptions.*;
 import com.tpg.bookshop.web.model.BookDto;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -30,8 +28,11 @@ public class BookCommandController implements HttpHeadersBuilder {
             return new ResponseEntity(String.format("Saved new book %s", savedBook.getUuid()),
                     generateHttpHeaders(BOOKS_COMMAND_URI, savedBook.getUuid()), CREATED);
         }
-        catch (FailedToSaveBookException | BookAlreadyExistsException fsbe) {
-            return new ResponseEntity(fsbe.getMessage(), generateHttpHeaders(BOOKS_COMMAND_URI, null), INTERNAL_SERVER_ERROR);
+        catch (BookAlreadyExistsException | MalformedBookRequestException e) {
+            return new ResponseEntity(e.getMessage(), generateHttpHeaders(BOOKS_COMMAND_URI, null), BAD_REQUEST);
+        }
+        catch (FailedToSaveBookException e) {
+            return new ResponseEntity(e.getMessage(), generateHttpHeaders(BOOKS_COMMAND_URI, null), INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -41,8 +42,11 @@ public class BookCommandController implements HttpHeadersBuilder {
             BookDto updatedBook = bookCommandService.updateBook(bookDto);
             return new ResponseEntity(String.format("Updated book with UUID %s.", updatedBook.getUuid()), generateHttpHeaders(BOOKS_COMMAND_URI, updatedBook.getUuid()), OK);
         }
-        catch (CannotUpdateNewBookException be) {
-            return new ResponseEntity(be.getMessage(), generateHttpHeaders(BOOKS_COMMAND_URI, null), BAD_REQUEST);
+        catch (CannotUpdateNewBookException e) {
+            return new ResponseEntity(e.getMessage(), generateHttpHeaders(BOOKS_COMMAND_URI, null), BAD_REQUEST);
+        }
+        catch (FailedToUpdateBookException e) {
+            return new ResponseEntity(e.getMessage(), generateHttpHeaders(BOOKS_COMMAND_URI, null), INTERNAL_SERVER_ERROR);
         }
     }
 }
