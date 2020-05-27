@@ -3,7 +3,7 @@ package com.tpg.bookshop.web.controllers;
 import com.tpg.bookshop.services.BookCommandService;
 import com.tpg.bookshop.services.exceptions.*;
 import com.tpg.bookshop.web.model.BookDto;
-import org.springframework.http.HttpHeaders;
+import com.tpg.bookshop.web.model.NewBookRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,9 +22,9 @@ public class BookCommandController implements HttpHeadersBuilder {
     }
 
     @PostMapping(consumes = APPLICATION_JSON_VALUE)
-    public ResponseEntity createBook(@RequestBody BookDto bookDto) {
+    public ResponseEntity createBook(@RequestBody NewBookRequest request) {
         try {
-            BookDto savedBook = bookCommandService.createBook(bookDto);
+            BookDto savedBook = bookCommandService.createBook(request);
             return new ResponseEntity(String.format("Saved new book %s", savedBook.getUuid()),
                     generateHttpHeaders(BOOKS_COMMAND_URI, savedBook.getUuid()), CREATED);
         }

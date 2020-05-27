@@ -2,6 +2,8 @@ package com.tpg.bookshop.web;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.tpg.bookshop.web.model.BookDto;
+import com.tpg.bookshop.web.model.NewBookRequest;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static com.tpg.bookshop.services.BookUuids.EXISTING_UUID;
@@ -14,11 +16,22 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 public class BookCommandsRATests extends WebRATests {
     private static final String BOOKS_URI = "/books";
 
+    private NewBookRequest request;
+
+    @BeforeEach
+    public void setUp() {
+        super.setUp();
+
+        request = NewBookRequest.builder()
+                .title("A title")
+                .description("A nice new book")
+                .isbn("1234-ABC")
+                .build();
+    }
+
     @Test
     public void givenNewBook_whenPostingNewBook_thenExpectOkResponseAndBookIsCreated() throws JsonProcessingException {
-        BookDto newBook = BookDto.builder().title("An Title").build();
-
-        String json = objectMapper.writeValueAsString(newBook);
+        String json = objectMapper.writeValueAsString(request);
 
         given()
             .contentType(APPLICATION_JSON_VALUE)
@@ -34,9 +47,9 @@ public class BookCommandsRATests extends WebRATests {
 
     @Test
     public void givenANewBook_whenPostingNewBookFails_thenExpectInternalServerErrorResponseAndBookIsNotCreated() throws JsonProcessingException {
-        BookDto newBook = BookDto.builder().uuid(NOT_FOUND_UUID).title("An Title").description(NOT_FOUND_UUID.toString()).build();
+        request.setTitle(uuid.toString());
 
-        String json = objectMapper.writeValueAsString(newBook);
+        String json = objectMapper.writeValueAsString(request);
 
         given()
             .contentType(APPLICATION_JSON_VALUE)
@@ -70,9 +83,9 @@ public class BookCommandsRATests extends WebRATests {
 
     @Test
     public void givenAnExistingBook_whenPostingExistingBook_thenExpectBadRequestResponseAndBookIsNotCreated() throws JsonProcessingException {
-        BookDto newBook = BookDto.builder().uuid(EXISTING_UUID).title("An Title").build();
+        request.setDescription(uuid.toString());
 
-        String json = objectMapper.writeValueAsString(newBook);
+        String json = objectMapper.writeValueAsString(request);
 
         given()
             .contentType(APPLICATION_JSON_VALUE)

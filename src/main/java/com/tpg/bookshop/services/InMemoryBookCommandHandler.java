@@ -2,6 +2,7 @@ package com.tpg.bookshop.services;
 
 import com.tpg.bookshop.services.exceptions.*;
 import com.tpg.bookshop.web.model.BookDto;
+import com.tpg.bookshop.web.model.NewBookRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -10,6 +11,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static com.tpg.bookshop.services.BookUuids.EXISTING_UUID;
 import static com.tpg.bookshop.services.BookUuids.NOT_FOUND_UUID;
 
 @Service
@@ -19,22 +21,21 @@ public class InMemoryBookCommandHandler implements BookCommandService {
     private final Map<UUID, BookDto> booksByUuid = new ConcurrentHashMap<>();
 
     @Override
-    public BookDto createBook(BookDto bookDto) throws FailedToSaveBookException, BookAlreadyExistsException, MalformedBookRequestException {
-        LOGGER.debug("Book is {}", bookDto);
+    public BookDto createBook(NewBookRequest request) throws FailedToSaveBookException, BookAlreadyExistsException, MalformedBookRequestException {
+        LOGGER.debug("New book request received {}", request);
 
-        simulateFailureToSaveBook(bookDto);
+        simulateFailureToSaveBook(request);
 
-        if ((bookDto.getUuid() != null) && (bookDto.getDescription() != null)) {
-            LOGGER.error("Simulating malformed book request");
-            throw new MalformedBookRequestException();
-        }
+        simulateMalformedBookRequest(request);
 
-        if (bookDto.getUuid() != null) {
-            LOGGER.error("Book {} already exists", bookDto.getUuid());
-            throw new BookAlreadyExistsException(bookDto.getUuid());
-        }
+        simulateBookAlreadyExists(request);
 
-        bookDto.setUuid(UUID.randomUUID());
+        BookDto bookDto = BookDto.builder()
+                .uuid(UUID.randomUUID())
+                .title(request.getTitle())
+                .description(request.getDescription())
+                .isbn(request.getIsbn())
+                .build();
 
         booksByUuid.put(bookDto.getUuid(), bookDto);
 
@@ -43,10 +44,24 @@ public class InMemoryBookCommandHandler implements BookCommandService {
         return bookDto;
     }
 
-    private void simulateFailureToSaveBook(BookDto bookDto) throws FailedToSaveBookException {
-        if (NOT_FOUND_UUID.equals(bookDto.getUuid())) {
+    private void simulateFailureToSaveBook(NewBookRequest request) throws FailedToSaveBookException {
+        if (EXISTING_UUID.toString().equals(request.getTitle())) {
             LOGGER.error("Simulating a failure to save new book");
             throw new FailedToSaveBookException("Failed to save new book");
+        }
+    }
+
+    private void simulateMalformedBookRequest(NewBookRequest request) throws MalformedBookRequestException {
+        if (EXISTING_UUID.toString().equals(request.getIsbn())) {
+            LOGGER.error("Simulating malformed book request");
+            throw new MalformedBookRequestException();
+        }
+    }
+
+    private void simulateBookAlreadyExists(NewBookRequest request) throws BookAlreadyExistsException {
+        if (EXISTING_UUID.toString().equals(request.getDescription())) {
+            LOGGER.error("Book {} already exists", EXISTING_UUID);
+            throw new BookAlreadyExistsException(EXISTING_UUID);
         }
     }
 

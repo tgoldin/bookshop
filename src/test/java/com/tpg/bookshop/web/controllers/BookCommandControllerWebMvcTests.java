@@ -6,6 +6,7 @@ import com.tpg.bookshop.services.exceptions.CannotUpdateNewBookException;
 import com.tpg.bookshop.services.exceptions.FailedToSaveBookException;
 import com.tpg.bookshop.services.exceptions.FailedToUpdateBookException;
 import com.tpg.bookshop.web.model.BookDto;
+import com.tpg.bookshop.web.model.NewBookRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -24,13 +25,13 @@ public class BookCommandControllerWebMvcTests extends WebMvcBasedTest {
     @MockBean
     private BookCommandService bookCommandService;
 
-    private BookDto newBook;
+    private NewBookRequest newBookRequest;
 
     @BeforeEach
     public void setUp() {
         super.setUp();
 
-        newBook = BookDto.builder()
+        newBookRequest = newBookRequest.builder()
                 .isbn("1234-ABC")
                 .title("A new book")
                 .description("A nice new book")
@@ -47,9 +48,9 @@ public class BookCommandControllerWebMvcTests extends WebMvcBasedTest {
                 .description("A nice new book")
                 .build();
 
-        when(bookCommandService.createBook(newBook)).thenReturn(savedBook);
+        when(bookCommandService.createBook(newBookRequest)).thenReturn(savedBook);
 
-        String json = objectMapper.writeValueAsString(newBook);
+        String json = objectMapper.writeValueAsString(newBookRequest);
 
         mockMvc.perform(post("/books")
                 .contentType(APPLICATION_JSON)
@@ -64,9 +65,9 @@ public class BookCommandControllerWebMvcTests extends WebMvcBasedTest {
     @Test
     public void givenANewBook_whenPostingNewBookFails_thenBookIsNotCreatedAndInternalServerErrorResponseIsReturned() throws Exception {
 
-        when(bookCommandService.createBook(newBook)).thenThrow(new FailedToSaveBookException("Failed to save new book"));
+        when(bookCommandService.createBook(newBookRequest)).thenThrow(new FailedToSaveBookException("Failed to save new book"));
 
-        String json = objectMapper.writeValueAsString(newBook);
+        String json = objectMapper.writeValueAsString(newBookRequest);
 
         mockMvc.perform(post("/books")
                 .contentType(APPLICATION_JSON)
@@ -79,12 +80,11 @@ public class BookCommandControllerWebMvcTests extends WebMvcBasedTest {
 
     @Test
     public void givenAnExistingBook_whenPostingExistingBook_thenBookIsNotCreatedAndInternalServerErrorResponseIsReturned() throws Exception {
+        NewBookRequest request = NewBookRequest.builder().title("Another title").build();
 
-        BookDto existingBook = BookDto.builder().uuid(uuid).build();
+        when(bookCommandService.createBook(request)).thenThrow(new BookAlreadyExistsException(uuid));
 
-        when(bookCommandService.createBook(existingBook)).thenThrow(new BookAlreadyExistsException(existingBook.getUuid()));
-
-        String json = objectMapper.writeValueAsString(existingBook);
+        String json = objectMapper.writeValueAsString(request);
 
         mockMvc.perform(post("/books")
                 .contentType(APPLICATION_JSON)
@@ -133,9 +133,11 @@ public class BookCommandControllerWebMvcTests extends WebMvcBasedTest {
 
     @Test
     public void givenANewBook_whenPuttingNewBook_thenBookIsNotCreatedAndBadRequestResponseIsReturned() throws Exception {
-        when(bookCommandService.updateBook(newBook)).thenThrow(new CannotUpdateNewBookException());
+        BookDto bookDto = BookDto.builder().title("A title").description("A description").build();
 
-        String json = objectMapper.writeValueAsString(newBook);
+        when(bookCommandService.updateBook(bookDto)).thenThrow(new CannotUpdateNewBookException());
+
+        String json = objectMapper.writeValueAsString(bookDto);
 
         mockMvc.perform(put("/books")
                 .contentType(APPLICATION_JSON)

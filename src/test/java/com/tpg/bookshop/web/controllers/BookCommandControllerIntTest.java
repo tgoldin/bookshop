@@ -2,6 +2,7 @@ package com.tpg.bookshop.web.controllers;
 
 import com.tpg.bookshop.services.exceptions.CannotUpdateNewBookException;
 import com.tpg.bookshop.web.model.BookDto;
+import com.tpg.bookshop.web.model.NewBookRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -15,13 +16,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 public class BookCommandControllerIntTest extends WebIntTest {
-    private BookDto newBook;
+    private NewBookRequest newBookRequest;
 
     @BeforeEach
     public void setUp() {
         super.setUp();
 
-        newBook = BookDto.builder()
+        newBookRequest = NewBookRequest.builder()
                 .isbn("1234-ABC")
                 .title("A new book")
                 .description("A nice new book")
@@ -31,7 +32,7 @@ public class BookCommandControllerIntTest extends WebIntTest {
     @Test
     public void givenANewBook_whenPostingNewBook_thenBookIsCreatedAndCreatedResponseIsReturned() throws Exception {
 
-        String json = objectMapper.writeValueAsString(newBook);
+        String json = objectMapper.writeValueAsString(newBookRequest);
 
         mockMvc.perform(post("/books")
                 .contentType(APPLICATION_JSON)
@@ -45,9 +46,9 @@ public class BookCommandControllerIntTest extends WebIntTest {
 
     @Test
     public void givenANewBook_whenPostingNewBookFails_thenBookIsNotCreatedAndInternalServerErrorResponseIsReturned() throws Exception {
-        newBook.setUuid(NOT_FOUND_UUID);
+        newBookRequest.setTitle(uuid.toString());
 
-        String json = objectMapper.writeValueAsString(newBook);
+        String json = objectMapper.writeValueAsString(newBookRequest);
 
         mockMvc.perform(post("/books")
                 .contentType(APPLICATION_JSON)
@@ -60,11 +61,10 @@ public class BookCommandControllerIntTest extends WebIntTest {
     }
 
     @Test
-    public void givenAnExistingBook_whenPostingExistingBook_thenBookIsNotCreatedAndInternalServerErrorResponseIsReturned() throws Exception {
+    public void givenAnExistingBook_whenPostingExistingBook_thenBookIsNotCreatedAndBadRequestResponseIsReturned() throws Exception {
+        newBookRequest.setDescription(uuid.toString());
 
-        BookDto existingBook = BookDto.builder().uuid(uuid).build();
-
-        String json = objectMapper.writeValueAsString(existingBook);
+        String json = objectMapper.writeValueAsString(newBookRequest);
 
         mockMvc.perform(post("/books")
                 .contentType(APPLICATION_JSON)
@@ -111,7 +111,9 @@ public class BookCommandControllerIntTest extends WebIntTest {
 
     @Test
     public void givenANewBook_whenPuttingNewBook_thenBookIsNotCreatedAndBadRequestResponseIsReturned() throws Exception {
-        String json = objectMapper.writeValueAsString(newBook);
+        newBookRequest.setTitle(uuid.toString());
+
+        String json = objectMapper.writeValueAsString(newBookRequest);
 
         mockMvc.perform(put("/books")
                 .contentType(APPLICATION_JSON)
