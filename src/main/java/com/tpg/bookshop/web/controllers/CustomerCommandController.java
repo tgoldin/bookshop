@@ -6,6 +6,7 @@ import com.tpg.bookshop.services.exceptions.CustomerAlreadyExistsException;
 import com.tpg.bookshop.services.exceptions.FailedToSaveCustomerException;
 import com.tpg.bookshop.services.exceptions.FailedToUpdateCustomerException;
 import com.tpg.bookshop.web.model.CustomerDto;
+import com.tpg.bookshop.web.model.NewCustomerRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,9 +25,9 @@ public class CustomerCommandController implements HttpHeadersBuilder {
     }
 
     @PostMapping(consumes = APPLICATION_JSON_VALUE)
-    public ResponseEntity createCustomer(@RequestBody CustomerDto customerDto) {
+    public ResponseEntity createCustomer(@RequestBody NewCustomerRequest request) {
         try {
-            CustomerDto savedDto = customerCommandService.createCustomer(customerDto);
+            CustomerDto savedDto = customerCommandService.createCustomer(request);
             return new ResponseEntity(String.format("Saved new customer %s.", savedDto.getUuid()),
                     generateHttpHeaders(CUSTOMERS_COMMAND_URI, savedDto.getUuid()), CREATED);
         } catch (FailedToSaveCustomerException | CustomerAlreadyExistsException ce) {

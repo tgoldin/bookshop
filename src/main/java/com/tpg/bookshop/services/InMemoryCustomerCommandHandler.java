@@ -1,7 +1,11 @@
 package com.tpg.bookshop.services;
 
-import com.tpg.bookshop.services.exceptions.*;
+import com.tpg.bookshop.services.exceptions.CannotUpdateNewCustomerException;
+import com.tpg.bookshop.services.exceptions.CustomerAlreadyExistsException;
+import com.tpg.bookshop.services.exceptions.FailedToSaveCustomerException;
+import com.tpg.bookshop.services.exceptions.FailedToUpdateCustomerException;
 import com.tpg.bookshop.web.model.CustomerDto;
+import com.tpg.bookshop.web.model.NewCustomerRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -19,23 +23,35 @@ public class InMemoryCustomerCommandHandler implements CustomerCommandService {
     private final Map<UUID, CustomerDto> customersByUuid = new ConcurrentHashMap<>();
 
     @Override
-    public CustomerDto createCustomer(CustomerDto customerDto) throws FailedToSaveCustomerException, CustomerAlreadyExistsException {
-        if (NOT_FOUND_UUID.equals(customerDto.getUuid())) {
-            LOGGER.error("Simulating failure to update customer {}", customerDto.getUuid());
-            throw new FailedToSaveCustomerException("Failed to save new customer."); }
+    public CustomerDto createCustomer(NewCustomerRequest request) throws FailedToSaveCustomerException, CustomerAlreadyExistsException {
+        simulateFailureToCreateCustomer(request);
 
-        if (customerDto.getUuid() != null) {
-            LOGGER.error("Simulating customer {} already exists", customerDto.getUuid());
-            throw new CustomerAlreadyExistsException(customerDto.getUuid());
-        }
+        simulateCustomerAlreadyExists(request);
 
-        customerDto.setUuid(UUID.randomUUID());
+        CustomerDto customerDto = CustomerDto.builder()
+                .firstName(request.getFirstName())
+                .surname(request.getSurname())
+                .uuid(UUID.randomUUID()).build();
 
         customersByUuid.put(customerDto.getUuid(), customerDto);
 
         LOGGER.info("Created customer {}", customerDto.getUuid());
 
         return customerDto;
+    }
+
+    private void simulateFailureToCreateCustomer(NewCustomerRequest request) throws FailedToSaveCustomerException {
+        if (NOT_FOUND_UUID.toString().equals(request.getFirstName())) {
+            LOGGER.error("Simulating failure to update customer {}", NOT_FOUND_UUID);
+            throw new FailedToSaveCustomerException("Failed to save new customer.");
+        }
+    }
+
+    private void simulateCustomerAlreadyExists(NewCustomerRequest request) throws CustomerAlreadyExistsException {
+        if (NOT_FOUND_UUID.toString().equals(request.getSurname())) {
+            LOGGER.error("Simulating customer {} already exists", NOT_FOUND_UUID);
+            throw new CustomerAlreadyExistsException(NOT_FOUND_UUID);
+        }
     }
 
     @Override

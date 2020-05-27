@@ -6,6 +6,7 @@ import com.tpg.bookshop.services.exceptions.CustomerAlreadyExistsException;
 import com.tpg.bookshop.services.exceptions.FailedToSaveCustomerException;
 import com.tpg.bookshop.services.exceptions.FailedToUpdateCustomerException;
 import com.tpg.bookshop.web.model.CustomerDto;
+import com.tpg.bookshop.web.model.NewCustomerRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -24,22 +25,22 @@ public class CustomerCommandControllerWebMvcTests extends WebMvcBasedTest {
     @MockBean
     private CustomerCommandService customerCommandService;
 
-    private CustomerDto newCustomer;
+    private NewCustomerRequest newCustomerRequest;
 
     @BeforeEach
     public void setUp() {
         super.setUp();
 
-        newCustomer = CustomerDto.builder().firstName("john").surname("Doe").build();
+        newCustomerRequest = NewCustomerRequest.builder().firstName("john").surname("Doe").build();
     }
 
     @Test
     public void givenANewCustomer_whenPostingNewCustomer_thenCustomerIsCreatedAndCreateResponseIsReturned() throws Exception {
         CustomerDto savedCustomer = CustomerDto.builder().uuid(uuid).firstName("John").surname("Doe").build();
 
-        when(customerCommandService.createCustomer(newCustomer)).thenReturn(savedCustomer);
+        when(customerCommandService.createCustomer(newCustomerRequest)).thenReturn(savedCustomer);
 
-        String json = objectMapper.writeValueAsString(newCustomer);
+        String json = objectMapper.writeValueAsString(newCustomerRequest);
 
         mockMvc.perform(post("/customers")
                 .contentType(APPLICATION_JSON)
@@ -53,9 +54,9 @@ public class CustomerCommandControllerWebMvcTests extends WebMvcBasedTest {
 
     @Test
     public void givenANewCustomer_whenPostingFails_thenCustomerIsNotCreatedAndInternalServerErrorResponseIsReturned() throws Exception {
-        when(customerCommandService.createCustomer(newCustomer)).thenThrow(new FailedToSaveCustomerException("Failed to save new customer."));
+        when(customerCommandService.createCustomer(newCustomerRequest)).thenThrow(new FailedToSaveCustomerException("Failed to save new customer."));
 
-        String json = objectMapper.writeValueAsString(newCustomer);
+        String json = objectMapper.writeValueAsString(newCustomerRequest);
 
         mockMvc.perform(post("/customers")
                 .contentType(APPLICATION_JSON)
@@ -69,11 +70,9 @@ public class CustomerCommandControllerWebMvcTests extends WebMvcBasedTest {
 
     @Test
     public void givenAnExistingCustomer_whenPostingExistingCustomer_thenCustomerIsNotCreatedAndInternalServerErrorResponseIsReturned() throws Exception {
-        CustomerDto existingCustomer = CustomerDto.builder().uuid(uuid).firstName("John").surname("Doe").build();
+        when(customerCommandService.createCustomer(newCustomerRequest)).thenThrow(new CustomerAlreadyExistsException(uuid));
 
-        when(customerCommandService.createCustomer(existingCustomer)).thenThrow(new CustomerAlreadyExistsException(uuid));
-
-        String json = objectMapper.writeValueAsString(existingCustomer);
+        String json = objectMapper.writeValueAsString(newCustomerRequest);
 
         mockMvc.perform(post("/customers")
                 .contentType(APPLICATION_JSON)
@@ -123,6 +122,7 @@ public class CustomerCommandControllerWebMvcTests extends WebMvcBasedTest {
 
     @Test
     public void givenANewCustomer_whenPuttingNewCustomer_thenCustomerIsNotCreatedAndBadRequestResponseIsReturned() throws Exception {
+        CustomerDto newCustomer = CustomerDto.builder().firstName("John").surname("Doe").build();
 
         when(customerCommandService.updateCustomer(newCustomer)).thenThrow(new CannotUpdateNewCustomerException());
         

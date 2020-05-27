@@ -7,6 +7,7 @@ import com.tpg.bookshop.services.exceptions.CustomerAlreadyExistsException;
 import com.tpg.bookshop.services.exceptions.FailedToSaveCustomerException;
 import com.tpg.bookshop.services.exceptions.FailedToUpdateCustomerException;
 import com.tpg.bookshop.web.model.CustomerDto;
+import com.tpg.bookshop.web.model.NewCustomerRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -21,7 +22,7 @@ import static org.springframework.http.HttpStatus.*;
 
 @ExtendWith(MockitoExtension.class)
 public class CustomerCommandControllerTests extends UUIDBasedTest {
-    private CustomerDto newCustomer;
+    private NewCustomerRequest newCustomerRequest;
 
     @Mock
     private CustomerCommandService customerCommandService;
@@ -33,16 +34,16 @@ public class CustomerCommandControllerTests extends UUIDBasedTest {
     public void setUp() {
         super.setUp();
 
-        newCustomer = CustomerDto.builder().firstName("John").surname("Doe").build();
+        newCustomerRequest = NewCustomerRequest.builder().firstName("John").surname("Doe").build();
     }
 
     @Test
     public void givenANewCustomer_whenPostingNewCustomer_thenCustomerIsCreatedAndCreatedResponseIsReturned() throws FailedToSaveCustomerException, CustomerAlreadyExistsException {
         CustomerDto savedCustomer = CustomerDto.builder().uuid(uuid).firstName("John").surname("Doe").build();
 
-        when(customerCommandService.createCustomer(newCustomer)).thenReturn(savedCustomer);
+        when(customerCommandService.createCustomer(newCustomerRequest)).thenReturn(savedCustomer);
 
-        ResponseEntity actual = controller.createCustomer(newCustomer);
+        ResponseEntity actual = controller.createCustomer(newCustomerRequest);
 
         assertThat(actual.getStatusCode()).isEqualTo(CREATED);
         assertThat(actual.getBody()).isEqualTo(String.format("Saved new customer %s.", uuid));
@@ -50,9 +51,9 @@ public class CustomerCommandControllerTests extends UUIDBasedTest {
 
     @Test
     public void givenANewCustomer_whenPostingNewCustomerFails_thenCustomerIsNotCreatedAndInternalServerErrorResponseIsReturned() throws FailedToSaveCustomerException, CustomerAlreadyExistsException {
-        when(customerCommandService.createCustomer(newCustomer)).thenThrow(new FailedToSaveCustomerException("Failed to save new customer."));
+        when(customerCommandService.createCustomer(newCustomerRequest)).thenThrow(new FailedToSaveCustomerException("Failed to save new customer."));
 
-        ResponseEntity actual = controller.createCustomer(newCustomer);
+        ResponseEntity actual = controller.createCustomer(newCustomerRequest);
 
         assertThat(actual.getStatusCode()).isEqualTo(INTERNAL_SERVER_ERROR);
         assertThat(actual.getBody()).isEqualTo("Failed to save new customer.");
@@ -60,11 +61,9 @@ public class CustomerCommandControllerTests extends UUIDBasedTest {
 
     @Test
     public void givenAnExistingCustomer_whenPostingExistingCustomer_thenCustomerIsNotCreatedAndInternalServerErrorResponseIsReturned() throws FailedToSaveCustomerException, CustomerAlreadyExistsException {
-        CustomerDto existingCustomer = CustomerDto.builder().uuid(uuid).build();
+        when(customerCommandService.createCustomer(newCustomerRequest)).thenThrow(new CustomerAlreadyExistsException(uuid));
 
-        when(customerCommandService.createCustomer(existingCustomer)).thenThrow(new CustomerAlreadyExistsException(uuid));
-
-        ResponseEntity actual = controller.createCustomer(existingCustomer);
+        ResponseEntity actual = controller.createCustomer(newCustomerRequest);
 
         assertThat(actual.getStatusCode()).isEqualTo(INTERNAL_SERVER_ERROR);
         assertThat(actual.getBody()).isEqualTo(String.format("Customer with UUID %s already exists.", uuid));

@@ -2,6 +2,8 @@ package com.tpg.bookshop.web;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.tpg.bookshop.web.model.CustomerDto;
+import com.tpg.bookshop.web.model.NewCustomerRequest;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static com.tpg.bookshop.services.BookUuids.NOT_FOUND_UUID;
@@ -13,11 +15,18 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 public class CustomerCommandRATests extends WebRATests {
     private static final String CUSTOMERS_URI = "/customers";
 
+    private NewCustomerRequest newCustomerRequest;
+
+    @BeforeEach
+    public void setUp() {
+        super.setUp();
+
+        newCustomerRequest = NewCustomerRequest.builder().firstName("John").surname("Doe").build();
+    }
+
     @Test
     public void givenNewCustomer_whenPostingNewCustomer_thenExpectCreatedResponseAndCustomerIsCreated() throws JsonProcessingException {
-        CustomerDto newCustomer = CustomerDto.builder().firstName("John").surname("Doe").build();
-
-        String json = objectMapper.writeValueAsString(newCustomer);
+        String json = objectMapper.writeValueAsString(newCustomerRequest);
 
         given()
             .contentType(APPLICATION_JSON_VALUE)
@@ -33,9 +42,9 @@ public class CustomerCommandRATests extends WebRATests {
 
     @Test
     public void givenNewCustomer_whenPostingNewCustomerFails_thenExpectInternalServerErrorResponseAndCustomerIsNotCreated() throws JsonProcessingException {
-        CustomerDto newCustomer = CustomerDto.builder().uuid(NOT_FOUND_UUID).firstName("John").surname("Doe").build();
+        newCustomerRequest.setFirstName(NOT_FOUND_UUID.toString());
 
-        String json = objectMapper.writeValueAsString(newCustomer);
+        String json = objectMapper.writeValueAsString(newCustomerRequest);
 
         given()
             .contentType(APPLICATION_JSON_VALUE)
@@ -51,9 +60,9 @@ public class CustomerCommandRATests extends WebRATests {
 
     @Test
     public void givenAnExistingCustomer_whenPostingExistingCustomer_thenExpectBadRequestResponseAndCustomerIsNotUpdated() throws JsonProcessingException {
-        CustomerDto existingCustomer = CustomerDto.builder().uuid(uuid).firstName("John").surname("Doe").build();
+        newCustomerRequest.setSurname(NOT_FOUND_UUID.toString());
 
-        String json = objectMapper.writeValueAsString(existingCustomer);
+        String json = objectMapper.writeValueAsString(newCustomerRequest);
 
         given()
             .contentType(APPLICATION_JSON_VALUE)
@@ -64,7 +73,7 @@ public class CustomerCommandRATests extends WebRATests {
         then()
             .log().body()
             .assertThat().statusCode(SC_INTERNAL_SERVER_ERROR)
-            .body(containsString(String.format("Customer with UUID %s already exists.", uuid)));
+            .body(containsString(String.format("Customer with UUID %s already exists.", NOT_FOUND_UUID)));
     }
 
     @Test
@@ -105,9 +114,7 @@ public class CustomerCommandRATests extends WebRATests {
 
     @Test
     public void givenANewCustomer_whenPuttingNewCustomer_thenExpectBadRequestResponseAndCustomerIsNotCreated() throws JsonProcessingException {
-        CustomerDto newCustomer = CustomerDto.builder().firstName("John").surname("Doe").build();
-
-        String json = objectMapper.writeValueAsString(newCustomer);
+        String json = objectMapper.writeValueAsString(newCustomerRequest);
 
         given()
             .contentType(APPLICATION_JSON_VALUE)
