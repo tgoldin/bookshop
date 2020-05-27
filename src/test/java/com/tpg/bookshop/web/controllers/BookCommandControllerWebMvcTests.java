@@ -7,6 +7,7 @@ import com.tpg.bookshop.services.exceptions.FailedToSaveBookException;
 import com.tpg.bookshop.services.exceptions.FailedToUpdateBookException;
 import com.tpg.bookshop.web.model.BookDto;
 import com.tpg.bookshop.web.model.NewBookRequest;
+import com.tpg.bookshop.web.model.UpdateBookRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -27,11 +28,20 @@ public class BookCommandControllerWebMvcTests extends WebMvcBasedTest {
 
     private NewBookRequest newBookRequest;
 
+    private UpdateBookRequest updateBookRequest;
+
     @BeforeEach
     public void setUp() {
         super.setUp();
 
-        newBookRequest = newBookRequest.builder()
+        newBookRequest = NewBookRequest.builder()
+                .isbn("1234-ABC")
+                .title("A new book")
+                .description("A nice new book")
+                .build();
+
+        updateBookRequest = UpdateBookRequest.builder()
+                .uuid(uuid)
                 .isbn("1234-ABC")
                 .title("A new book")
                 .description("A nice new book")
@@ -80,11 +90,9 @@ public class BookCommandControllerWebMvcTests extends WebMvcBasedTest {
 
     @Test
     public void givenAnExistingBook_whenPostingExistingBook_thenBookIsNotCreatedAndInternalServerErrorResponseIsReturned() throws Exception {
-        NewBookRequest request = NewBookRequest.builder().title("Another title").build();
+        when(bookCommandService.createBook(newBookRequest)).thenThrow(new BookAlreadyExistsException(uuid));
 
-        when(bookCommandService.createBook(request)).thenThrow(new BookAlreadyExistsException(uuid));
-
-        String json = objectMapper.writeValueAsString(request);
+        String json = objectMapper.writeValueAsString(newBookRequest);
 
         mockMvc.perform(post("/books")
                 .contentType(APPLICATION_JSON)
@@ -99,9 +107,9 @@ public class BookCommandControllerWebMvcTests extends WebMvcBasedTest {
     public void givenAnExistingBook_whenPuttingUpdatedBook_thenBookIsUpdatedAndOkResponseIsReturned() throws Exception {
         BookDto existingBook = BookDto.builder().uuid(uuid).title("Title One").build();
 
-        when(bookCommandService.updateBook(existingBook)).thenReturn(existingBook);
+        when(bookCommandService.updateBook(updateBookRequest)).thenReturn(existingBook);
 
-        String json = objectMapper.writeValueAsString(existingBook);
+        String json = objectMapper.writeValueAsString(updateBookRequest);
 
         mockMvc.perform(put("/books")
                 .contentType(APPLICATION_JSON)
@@ -115,11 +123,9 @@ public class BookCommandControllerWebMvcTests extends WebMvcBasedTest {
 
     @Test
     public void givenAnExistingBook_whenPuttingUpdatedBookFails_thenBookIsNotCreatedAndInternalServerErrorResponseIsReturned() throws Exception {
-        BookDto existingBook = BookDto.builder().uuid(uuid).title("Title One").build();
+        when(bookCommandService.updateBook(updateBookRequest)).thenThrow(new FailedToUpdateBookException(uuid));
 
-        when(bookCommandService.updateBook(existingBook)).thenThrow(new FailedToUpdateBookException(existingBook));
-
-        String json = objectMapper.writeValueAsString(existingBook);
+        String json = objectMapper.writeValueAsString(updateBookRequest);
 
         mockMvc.perform(put("/books")
                 .contentType(APPLICATION_JSON)
@@ -133,11 +139,9 @@ public class BookCommandControllerWebMvcTests extends WebMvcBasedTest {
 
     @Test
     public void givenANewBook_whenPuttingNewBook_thenBookIsNotCreatedAndBadRequestResponseIsReturned() throws Exception {
-        BookDto bookDto = BookDto.builder().title("A title").description("A description").build();
+        when(bookCommandService.updateBook(updateBookRequest)).thenThrow(new CannotUpdateNewBookException());
 
-        when(bookCommandService.updateBook(bookDto)).thenThrow(new CannotUpdateNewBookException());
-
-        String json = objectMapper.writeValueAsString(bookDto);
+        String json = objectMapper.writeValueAsString(updateBookRequest);
 
         mockMvc.perform(put("/books")
                 .contentType(APPLICATION_JSON)

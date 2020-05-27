@@ -3,6 +3,7 @@ package com.tpg.bookshop.web.controllers;
 import com.tpg.bookshop.services.exceptions.CannotUpdateNewBookException;
 import com.tpg.bookshop.web.model.BookDto;
 import com.tpg.bookshop.web.model.NewBookRequest;
+import com.tpg.bookshop.web.model.UpdateBookRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -18,11 +19,20 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class BookCommandControllerIntTest extends WebIntTest {
     private NewBookRequest newBookRequest;
 
+    private UpdateBookRequest updateBookRequest;
+
     @BeforeEach
     public void setUp() {
         super.setUp();
 
         newBookRequest = NewBookRequest.builder()
+                .isbn("1234-ABC")
+                .title("A new book")
+                .description("A nice new book")
+                .build();
+
+        updateBookRequest = UpdateBookRequest.builder()
+                .uuid(uuid)
                 .isbn("1234-ABC")
                 .title("A new book")
                 .description("A nice new book")
@@ -78,9 +88,7 @@ public class BookCommandControllerIntTest extends WebIntTest {
 
     @Test
     public void givenAnExistingBook_whenPuttingUpdatedBook_thenBookIsUpdatedAndOkResponseIsReturned() throws Exception {
-        BookDto existingBook = BookDto.builder().uuid(uuid).title("Title One").build();
-
-        String json = objectMapper.writeValueAsString(existingBook);
+        String json = objectMapper.writeValueAsString(updateBookRequest);
 
         mockMvc.perform(put("/books")
                 .contentType(APPLICATION_JSON)
@@ -94,10 +102,10 @@ public class BookCommandControllerIntTest extends WebIntTest {
 
     @Test
     public void givenAnExistingBook_whenPuttingUpdatedBookFails_thenBookIsNotUpdatedAndInternalErrorResponseIsReturned() throws Exception {
-        BookDto existingBook = BookDto.builder().uuid(NOT_FOUND_UUID).title("Title One").description(NOT_FOUND_UUID.toString())
-                .build();
+        updateBookRequest.setUuid(NOT_FOUND_UUID);
+        updateBookRequest.setDescription(NOT_FOUND_UUID.toString());
 
-        String json = objectMapper.writeValueAsString(existingBook);
+        String json = objectMapper.writeValueAsString(updateBookRequest);
 
         mockMvc.perform(put("/books")
                 .contentType(APPLICATION_JSON)

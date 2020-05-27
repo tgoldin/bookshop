@@ -3,6 +3,7 @@ package com.tpg.bookshop.services;
 import com.tpg.bookshop.services.exceptions.*;
 import com.tpg.bookshop.web.model.BookDto;
 import com.tpg.bookshop.web.model.NewBookRequest;
+import com.tpg.bookshop.web.model.UpdateBookRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -66,22 +67,31 @@ public class InMemoryBookCommandHandler implements BookCommandService {
     }
 
     @Override
-    public BookDto updateBook(BookDto bookDto) throws CannotUpdateNewBookException, FailedToUpdateBookException {
-        if (bookDto.getUuid() == null) { throw new CannotUpdateNewBookException(); }
+    public BookDto updateBook(UpdateBookRequest request) throws CannotUpdateNewBookException, FailedToUpdateBookException {
+        if (request.getUuid() == null) { throw new CannotUpdateNewBookException(); }
 
-        simulateFailureToUpdateBook(bookDto);
+        simulateFailureToUpdateBook(request);
 
-        booksByUuid.put(bookDto.getUuid(), bookDto);
+        BookDto found = booksByUuid.getOrDefault(request.getUuid(), BookDto.builder().build());
 
-        LOGGER.info("Book with UUID {} updated.", bookDto.getUuid());
+        if (found.getUuid() == null) {
+            found.setUuid(request.getUuid());
+            booksByUuid.put(request.getUuid(), found);
+        }
 
-        return bookDto;
+        found.setTitle(request.getTitle());
+        found.setDescription(request.getDescription());
+        found.setIsbn(request.getIsbn());
+
+        LOGGER.info("Book with UUID {} updated.", request.getUuid());
+
+        return found;
     }
 
-    private void simulateFailureToUpdateBook(BookDto bookDto) throws FailedToUpdateBookException {
-        if (NOT_FOUND_UUID.equals(bookDto.getUuid()) && (NOT_FOUND_UUID.equals(UUID.fromString(bookDto.getDescription())))) {
+    private void simulateFailureToUpdateBook(UpdateBookRequest request) throws FailedToUpdateBookException {
+        if (NOT_FOUND_UUID.equals(request.getUuid()) && (NOT_FOUND_UUID.equals(UUID.fromString(request.getDescription())))) {
             LOGGER.error("Simulating a failure to update existing book");
-            throw new FailedToUpdateBookException(bookDto);
+            throw new FailedToUpdateBookException(request.getUuid());
         }
     }
 }

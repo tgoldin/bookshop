@@ -4,6 +4,7 @@ import com.tpg.bookshop.services.BookCommandService;
 import com.tpg.bookshop.services.exceptions.*;
 import com.tpg.bookshop.web.model.BookDto;
 import com.tpg.bookshop.web.model.NewBookRequest;
+import com.tpg.bookshop.web.model.UpdateBookRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -37,9 +38,9 @@ public class BookCommandController implements HttpHeadersBuilder {
     }
 
     @PutMapping(consumes = APPLICATION_JSON_VALUE)
-    public ResponseEntity updateBook(@RequestBody BookDto bookDto) {
+    public ResponseEntity updateBook(@RequestBody UpdateBookRequest request) {
         try {
-            BookDto updatedBook = bookCommandService.updateBook(bookDto);
+            BookDto updatedBook = bookCommandService.updateBook(request);
             return new ResponseEntity(String.format("Updated book with UUID %s.", updatedBook.getUuid()), generateHttpHeaders(BOOKS_COMMAND_URI, updatedBook.getUuid()), OK);
         }
         catch (CannotUpdateNewBookException e) {

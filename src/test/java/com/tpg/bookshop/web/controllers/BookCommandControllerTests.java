@@ -8,6 +8,7 @@ import com.tpg.bookshop.services.exceptions.FailedToSaveBookException;
 import com.tpg.bookshop.services.exceptions.FailedToUpdateBookException;
 import com.tpg.bookshop.web.model.BookDto;
 import com.tpg.bookshop.web.model.NewBookRequest;
+import com.tpg.bookshop.web.model.UpdateBookRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -29,6 +30,8 @@ public class BookCommandControllerTests extends UUIDBasedTest {
 
     private NewBookRequest newBookRequest;
 
+    private UpdateBookRequest updateBookRequest;
+
     @InjectMocks
     private BookCommandController controller;
 
@@ -37,6 +40,13 @@ public class BookCommandControllerTests extends UUIDBasedTest {
         super.setUp();
 
         newBookRequest = NewBookRequest.builder()
+                .isbn("1234-ABC")
+                .title("A new book")
+                .description("A nice new book")
+                .build();
+
+        updateBookRequest = UpdateBookRequest.builder()
+                .uuid(uuid)
                 .isbn("1234-ABC")
                 .title("A new book")
                 .description("A nice new book")
@@ -91,9 +101,9 @@ public class BookCommandControllerTests extends UUIDBasedTest {
     public void givenAnExistingBook_whenPuttingUpdatedBook_thenBookIsUpdatedAndOkResponseIsReturned() throws Exception {
         BookDto existingBook = BookDto.builder().uuid(uuid).title("Title One").build();
 
-        when(bookCommandService.updateBook(existingBook)).thenReturn(existingBook);
+        when(bookCommandService.updateBook(updateBookRequest)).thenReturn(existingBook);
 
-        ResponseEntity actual = controller.updateBook(existingBook);
+        ResponseEntity actual = controller.updateBook(updateBookRequest);
 
         assertThat(actual.getStatusCode()).isEqualTo(OK);
         assertThat(actual.getHeaders().get("Location")).contains(String.format("/books/%s", uuid));
@@ -104,9 +114,9 @@ public class BookCommandControllerTests extends UUIDBasedTest {
     public void givenAnExistingBook_whenPuttingUpdatedBookFails_thenBookIsNotUpdatedAndInternalServerErrorResponseIsReturned() throws Exception {
         BookDto existingBook = BookDto.builder().uuid(uuid).title("Title One").build();
 
-        when(bookCommandService.updateBook(existingBook)).thenThrow(new FailedToUpdateBookException(existingBook));
+        when(bookCommandService.updateBook(updateBookRequest)).thenThrow(new FailedToUpdateBookException(uuid));
 
-        ResponseEntity actual = controller.updateBook(existingBook);
+        ResponseEntity actual = controller.updateBook(updateBookRequest);
 
         assertThat(actual.getStatusCode()).isEqualTo(INTERNAL_SERVER_ERROR);
         assertThat(actual.getHeaders().isEmpty());
@@ -115,11 +125,11 @@ public class BookCommandControllerTests extends UUIDBasedTest {
 
     @Test
     public void givenANewBook_whenPuttingNewBook_thenBookIsNotCreatedAndBadRequestResponseIsReturned() throws Exception {
-        BookDto newBook = BookDto.builder().title("A title").build();
+        updateBookRequest.setUuid(null);
 
-        when(bookCommandService.updateBook(newBook)).thenThrow(new CannotUpdateNewBookException());
+        when(bookCommandService.updateBook(updateBookRequest)).thenThrow(new CannotUpdateNewBookException());
 
-        ResponseEntity actual = controller.updateBook(newBook);
+        ResponseEntity actual = controller.updateBook(updateBookRequest);
 
         assertThat(actual.getStatusCode()).isEqualTo(BAD_REQUEST);
         assertThat(actual.getHeaders()).isEmpty();
