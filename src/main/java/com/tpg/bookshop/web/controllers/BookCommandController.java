@@ -8,6 +8,8 @@ import com.tpg.bookshop.web.model.UpdateBookRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+
 import static org.springframework.http.HttpStatus.*;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
@@ -23,7 +25,7 @@ public class BookCommandController implements HttpHeadersBuilder {
     }
 
     @PostMapping(consumes = APPLICATION_JSON_VALUE)
-    public ResponseEntity createBook(@RequestBody NewBookRequest request) {
+    public ResponseEntity createBook(@Valid @RequestBody NewBookRequest request) {
         try {
             BookDto savedBook = bookCommandService.createBook(request);
             return new ResponseEntity(String.format("Saved new book %s", savedBook.getUuid()),
